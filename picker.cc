@@ -26,6 +26,9 @@ void chance(string s = "") {
 	usleep(500'000);
 	reset_state();
 }
+void uppercaseify(string &s) {
+	for (char &c : s) c = toupper(c);
+}
 
 int main() {
 	system("figlet DECISION 2022 | lolcat");
@@ -61,10 +64,11 @@ int main() {
 			while (true) {
 				College tempCollege;
 				try {
-					cout << "Please enter the name of the college (Enter \"Quit\" to break.)." << endl;
+					cout << "Please enter the name of the college (Enter \"QUIT\" to break.)." << endl;
 					string collegeName;
 					getline(cin, collegeName);
-					if (collegeName == "Quit" || collegeName == "quit" || collegeName == "QUIT") break;
+					uppercaseify(collegeName);
+					if (collegeName == "QUIT") break;
 					tempCollege.set_name(collegeName);
 					while (true) {
 						cout << "Please enter the cost of the college.\n";
@@ -87,7 +91,7 @@ int main() {
 							<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1" << endl;
 						int collegeRating = 0;
 						cin >> collegeRating;
-						if (!cin || collegeRating < 0 || collegeRating > 5) {
+						if (!cin || collegeRating <= 0 || collegeRating > 5) {
 							if (failCounter == MAX_FAILS)
 								fail("You've exceeded max attempts for correct input.\nQuitting now...");
 							else {
@@ -101,78 +105,89 @@ int main() {
 					}
 					bool additionalRatings = false;
 					string response;
-					cout << "Would you like to input other ratings for the college (Academics, Party, Athletics)?\n"
-						<< "Please type No or Yes.\n";
-					cin >> response;
-					if (response != "YES" || response != "Yes" || response != "yes" || response != "NO" || response != "no" || response != "No") {
-						if (failCounter == MAX_FAILS)
-							fail("You've exceeded max attempts for correct input.\nQuitting now...");
-						else {
-							failCounter++;
-							chance("Error: Entered invalid input. Please enter a valid input.\n");
-							continue;
-						}
-					}
-					if (response == "YES" || response == "yes" || response == "Yes") additionalRatings = true;
-					else additionalRatings = false;
-
-					if (additionalRatings == true) {
-						cout << "Do you want to add the academic rating of your college?\n"
-							<< "Please type Yes or No.\n";
-						string rating;
-						cin >> rating;
-
-						if (rating != "YES" || rating != "Yes" || rating != "yes" || rating != "NO" || rating != "no" || rating != "No") {
+					while (true) {
+						cout << "Would you like to input other ratings for the college (Academics, Party, Athletics)?\n"
+							<< "Please type \"YES\" or \"NO\".\n";
+						cin >> response;
+						uppercaseify(response);
+						if (response != "YES" || response != "NO") {
 							if (failCounter == MAX_FAILS)
 								fail("You've exceeded max attempts for correct input.\nQuitting now...");
 							else {
 								failCounter++;
 								chance("Error: Entered invalid input. Please enter a valid input.\n");
 								continue;
+							}
+						}
+					}
+					if (response == "YES") additionalRatings = true;
+					else additionalRatings = false;
+
+					string rating;
+					if (additionalRatings == true) {
+						while (true) {
+							cout << "Do you want to add the academic rating of your college?\n"
+								 << "Please type \"YES\" or \"NO\".\n";
+							cin >> rating;
+							uppercaseify(rating);
+
+							if (rating != "YES" && rating != "NO") {
+								if (failCounter == MAX_FAILS)
+									fail("You've exceeded max attempts for correct input.\nQuitting now...");
+								else {
+									failCounter++;
+									chance("Error: Entered invalid input. Please enter a valid input.\n");
+									continue;
+								}
 							}
 						}
 						bool academic = false;
-						if (rating == "YES" || rating == "yes" || rating == "Yes") academic = true;
+						if (rating == "YES") academic = true;
 						else academic = false;
 
+						int acaRating = 0;
 						if (academic == true) {
-							cout << "Please enter the academic rating of the college.\n"
-								<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1\n";
-							int acaRating = 0;
-							cin >> acaRating;
-							if (!cin || acaRating < 0 && acaRating > 5) {
-								if (failCounter == MAX_FAILS) 
-									fail("You've exceeded max attempts for correct input.\nQuitting now...");
-								else {
-								failCounter++;
-								chance("Error: Entered invalid input. Please enter a valid input.\n");
-								continue;
+							while (true) {
+								cout << "Please enter the academic rating of the college.\n"
+									<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1\n";
+								cin >> acaRating;
+								if (!cin || acaRating <= 0 && acaRating > 5) {
+									if (failCounter == MAX_FAILS) 
+										fail("You've exceeded max attempts for correct input.\nQuitting now...");
+									else {
+										failCounter++;
+										chance("Error: Entered invalid input. Please enter a valid input.\n");
+										continue;
+									}
 								}
 							}
-
 						}
-						cout << "Do you want to add the athletic rating of your college?\n"
-							<< "Please type Yes or No.\n";
-						cin >> rating;
+						tempCollege.set_academicRating(acaRating);
+						while (true) {
+							cout << "Do you want to add the athletic rating of your college?\n"
+								<< "Please type \"YES\" or \"NO\".\n";
+							cin >> rating;
+							uppercaseify(rating);
 
-						if (rating != "YES" || rating != "Yes" || rating != "yes" || rating != "NO" || rating != "no" || rating != "No") {
-							if (failCounter == MAX_FAILS)
-								fail("You've exceeded max attempts for correct input.\nQuitting now...");
-							else {
-								failCounter++;
-								chance("Error: Entered invalid input. Please enter a valid input.\n");
-								continue;
+							if (rating != "YES" && rating != "NO") {
+								if (failCounter == MAX_FAILS)
+									fail("You've exceeded max attempts for correct input.\nQuitting now...");
+								else {
+									failCounter++;
+									chance("Error: Entered invalid input. Please enter a valid input.\n");
+									continue;
+								}
 							}
 						}
 						bool athletic = false;
-						if (rating == "YES" || rating == "yes" || rating == "Yes") academic = true;
+						if (rating == "YES") academic = true;
 						else athletic = false;
 
 						if (athletic == true) {
 							cout << "Please enter the athletic rating of the college.\n"
 								<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1\n";
 							int athlRating = 0;
-							if (!cin || athlRating < 0 && athlRating > 5) {
+							if (!cin || athlRating <= 0 && athlRating > 5) {
 								if (failCounter == MAX_FAILS)
 									fail("You've exceeded max attempts for correct input.\nQuitting now...");
 								else {
@@ -183,10 +198,11 @@ int main() {
 							}
 						}
 						cout << "Do you want to add the party rating of your college?\n"
-							<< "Please type Yes or No.\n";
+							<< "Please type \"Yes\" or \"NO\".\n";
 						cin >> rating;
+						uppercaseify(rating);
 
-						if (rating != "YES" || rating != "Yes" || rating != "yes" || rating != "NO" || rating != "no" || rating != "No") {
+						if (rating != "YES" && rating != "NO") {
 							if (failCounter == MAX_FAILS)
 								fail("You've exceeded max attempts for correct input.\nQuitting now...");
 							else {
@@ -196,7 +212,7 @@ int main() {
 							}
 						}
 						bool party = false;
-						if (rating == "YES" || rating == "yes" || rating == "Yes") academic = true;
+						if (rating == "YES") academic = true;
 						else party = false;
 
 						if (party == true) {
@@ -204,7 +220,7 @@ int main() {
 								<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1\n";
 							int partyRating = 0;
 							cin >> partyRating;
-							if (!cin || partyRating < 0 && partyRating > 5) {
+							if (!cin || partyRating <= 0 && partyRating > 5) {
 								if (failCounter == MAX_FAILS)	
 									fail("You've exceeded max attempts for correct input.\nQuitting now...");
 								else {
@@ -218,7 +234,7 @@ int main() {
 					}
 				}
 				catch (exception &e) {
-					cout << "Caught: " << e.what() << "\nPlease try again.\n";
+					cout << "CAUGHT " << e.what() << "\nPlease try again.\n";
 				}
 			}
 		}// TODO: Everything below... Finish Phase 1 - Phase 5
