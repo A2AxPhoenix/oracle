@@ -1,7 +1,9 @@
+#include "college.h"
 #include "read.h"
 #include "decision.h"
 #include <limits>
-#include <map>
+#include <deque>
+#include <list>
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
@@ -22,7 +24,7 @@ void fail(string s = "") {
 }
 void chance(string s = "") {
 	usleep(500'000);
-	system("clear");
+	(void)!system("clear");
 	error(s);
 	usleep(500'000);
 	reset_state();
@@ -32,15 +34,15 @@ void uppercaseify(string &s) {
 }
 
 int main() {
-	system("figlet DECISION 2022 | lolcat");
+	(void)!system("figlet DECISION 2022 | lolcat");
 	usleep(1'000'000);
 	cout << "Time to make a decision..." << endl;
 	const int MAX_FAILS = 5;
 	int failCounter = 0;
 	// PHASE 1: Input College Data
 	enum MENU_OPTIONS { ADD = 1, MODIFY, SEARCH, DELETE, QUIT };
-	map<College, int> colleges;
-	map<Decision, int> decisions;
+	deque<College> colleges;
+	list<Decision> decisions;
 	while (true) {
 		cout << "Please select an option: \n";
 		cout << "1. Add College to Database\n"
@@ -60,7 +62,7 @@ int main() {
 			}
 		}
 		reset_state();
-		if (choice == ADD) { // TODO: FINISH ADDING
+		if (choice == ADD) {
 			failCounter = 0;
 			while (true) {
 				College tempCollege;
@@ -71,6 +73,27 @@ int main() {
 					uppercaseify(collegeName);
 					if (collegeName == "QUIT") break;
 					tempCollege.set_name(collegeName);
+					cout << "Please enter the city the college is in." << endl;
+					string collegeLocation;
+					getline(cin, collegeLocation);
+					uppercaseify(collegeLocation);
+					tempCollege.set_location(collegeLocation);
+					while (true) {
+						cout << "Please enter the total distance (in miles) the college is from your hometown." << endl;
+						double collegeDistance = 0.0;
+						cin >> collegeDistance;
+						if (!cin || collegeDistance < 0) {
+							if (failCounter == MAX_FAILS) 
+								fail("You've exceeded max attempts for correct input.\nQuitting now...");
+							else {
+								failCounter++;
+								chance("Error: Entered invalid input. Please enter a valid input.\n");
+								continue;
+							}
+						}
+						tempCollege.set_distance(collegeDistance);
+						break;
+					}
 					while (true) {
 						cout << "Please enter the cost of the college.\n";
 						double collegeCost = 0.0;
@@ -162,7 +185,7 @@ int main() {
 								cout << "Please enter the academic rating of the college.\n"
 									<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1\n";
 								cin >> acaRating;
-								if (!cin || acaRating <= 0 && acaRating > 5) {
+								if (!cin || (acaRating <= 0 && acaRating > 5)) {
 									if (failCounter == MAX_FAILS) 
 										fail("You've exceeded max attempts for correct input.\nQuitting now...");
 									else {
@@ -206,7 +229,7 @@ int main() {
 								cout << "Please enter the athletic rating of the college.\n"
 									<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1\n";
 								cin >> athlRating;
-								if (!cin || athlRating <= 0 && athlRating > 5) {
+								if (!cin || (athlRating <= 0 && athlRating > 5)) {
 									if (failCounter == MAX_FAILS)
 										fail("You've exceeded max attempts for correct input.\nQuitting now...");
 									else {
@@ -247,10 +270,10 @@ int main() {
 						int partyRating = 0;
 						if (party == true) {
 							while (true) {
-								cout << "Please enter the athletic rating of the college.\n"
+								cout << "Please enter the party rating of the college.\n"
 									<< "Note: A = 5, B = 4, C = 3, D = 2, F = 1\n";
 								cin >> partyRating;
-								if (!cin || partyRating <= 0 && partyRating > 5) {
+								if (!cin || (partyRating <= 0 && partyRating > 5)) {
 									if (failCounter == MAX_FAILS)	
 										fail("You've exceeded max attempts for correct input.\nQuitting now...");
 									else {
@@ -261,10 +284,98 @@ int main() {
 								}
 								break;
 							}
-						tempCollege.set_partyRating(partyRating);
 						}
-						// TODO: Continue getting info on college and making it part of tempCollege
+						tempCollege.set_partyRating(partyRating);
 					}
+					bool campusHousing = false;
+					reset_state();
+					while (true) {
+						cout << "Does the college offer on campus housing?\nEnter \"YES\" or \"NO\"." << endl;
+						string housing;
+						getline(cin, housing);
+						uppercaseify(housing);
+						if (housing == "YES") campusHousing = true;
+						else if (housing == "NO") campusHousing = false;
+						else {
+							if (failCounter == MAX_FAILS)
+								fail("You've exceeded max attempts for correct input.\nQuitting now...");
+							else {
+								failCounter++;
+								chance("Error: Entered invalid input. Please enter a valid input.\n");
+								continue;
+							}
+						}
+						break;
+					}
+					tempCollege.set_liveOnCampus(campusHousing);
+					bool desiredMajor = false;
+					while (true) {
+						cout << "Does the college offer your desired major?\nEnter \"YES\" or \"NO\"." << endl;
+						string major;
+						getline(cin, major);
+						uppercaseify(major);
+						if (major == "YES") desiredMajor = true;
+						else if (major == "NO") desiredMajor = false;
+						else {
+							if (failCounter == MAX_FAILS)
+								fail("You've exceeded max attempts for correct input.\nQuitting now...");
+							else {
+								failCounter++;
+								chance("Error: Entered invalid input. Please enter a valid input.\n");
+								continue;
+							}
+						}
+						break;
+					}
+					tempCollege.set_hasMajor(desiredMajor);
+
+					cout << "You are about to add a college, please make sure all information is correct before moving on." << endl;
+					print_stats(tempCollege);
+					bool completed = false;
+					while (true) {
+						cout << "\nIs all information correct (Enter \"YES\" or \"NO\".)?\n";
+						string doubleCheck;
+						getline(cin, doubleCheck);
+						uppercaseify(doubleCheck);
+						if (doubleCheck == "YES") completed = true;
+						else if (doubleCheck == "NO") completed = false;
+						else {
+							if (failCounter == MAX_FAILS)
+								fail("You've exceeded max attempts for correct input.\nQuitting now...");
+							else {
+								failCounter++;
+								chance("Error: Entered invalid input. Please enter a valid input.\n");
+								continue;
+							}
+						}
+						break;
+					}
+					if (completed == true)
+						colleges.push_back(tempCollege);	
+					else if (completed == false)
+						// TODO: Reprompt with specific modifications rather than have them redo the entire prompt from beginning to end.
+						continue;
+					bool moreInputs = false;
+					while (true) {
+						cout << "Do you have more colleges to add (Enter \"YES\" or \"NO\".)?\n";
+						string addingMore;
+						getline(cin, addingMore);
+						uppercaseify(addingMore);
+						if (addingMore == "YES") moreInputs = true;
+						else if (addingMore == "NO") moreInputs = false;
+						else {
+							if (failCounter == MAX_FAILS)
+								fail("You've exceeded max attempts for correct input.\nQuitting now...");
+							else {
+								failCounter++;
+								chance("Error: Entered invalid input. Please enter a valid input.\n");
+								continue;
+							}
+						}
+						break;
+					}
+					if (moreInputs == true) continue;
+					else break;
 				}
 				catch (exception &e) {
 					cout << "CAUGHT " << e.what() << "\nPlease try again.\n";
