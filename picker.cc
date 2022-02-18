@@ -40,7 +40,7 @@ int main() {
 	const int MAX_FAILS = 5;
 	int failCounter = 0;
 	// PHASE 1: Input College Data
-	enum MENU_OPTIONS { ADD = 1, MODIFY, SEARCH, DELETE, QUIT };
+	enum MENU_OPTIONS { ADD = 1, MODIFY = 2, SEARCH, DELETE, QUIT };
 	deque<College> colleges;
 	list<Decision> decisions;
 	while (true) {
@@ -350,8 +350,10 @@ int main() {
 						}
 						break;
 					}
-					if (completed == true)
-						colleges.push_back(tempCollege);	
+					if (completed == true) {
+						colleges.push_back(tempCollege);
+						cout << colleges.size() << endl;
+					}
 					else if (completed == false)
 						// TODO: Reprompt with specific modifications rather than have them redo the entire prompt from beginning to end.
 						continue;
@@ -381,8 +383,25 @@ int main() {
 					cout << "CAUGHT " << e.what() << "\nPlease try again.\n";
 				}
 			}
-		}// TODO: Everything below... Finish Phase 1 - Phase 5
-		else if (choice == MODIFY) {}
+		}// TODO: Everything below... Finish Phase 2 - Phase 5
+		else if (choice == MODIFY) {
+			// IN PROGRESS...
+			if (colleges.size() == 0)
+				cout << "No colleges are in database. Add colleges to the database first to modify.\n";
+			else {
+				for (size_t i = 0; i < colleges.size(); i++) {
+					cout << i << ": " << colleges.at(i).get_name() << endl;
+				}
+			}
+			while (true) {
+				try {
+
+				}
+				catch (exception &e) {
+					cout << "CAUGHT " << e.what() << endl;
+				}
+			}
+		}
 		else if (choice == SEARCH) {}
 		else if (choice == DELETE) {}
 		else if (choice == QUIT) break;
