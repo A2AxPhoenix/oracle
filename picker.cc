@@ -352,7 +352,6 @@ int main() {
 					}
 					if (completed == true) {
 						colleges.push_back(tempCollege);
-						cout << colleges.size() << endl;
 					}
 					else if (completed == false)
 						// TODO: Reprompt with specific modifications rather than have them redo the entire prompt from beginning to end.
@@ -403,7 +402,98 @@ int main() {
 			}
 		}
 		else if (choice == SEARCH) {}
-		else if (choice == DELETE) {}
+		else if (choice == DELETE) {
+			failCounter = 0;
+			if (colleges.size() == 0)
+				cout << "No collegs are in database. Add colleges to the database first to modify.\n";
+			else {
+				for (size_t i = 0; i < colleges.size(); i++) {
+					cout << i << ": " << colleges.at(i).get_name() << endl;
+				}
+			}
+			while (true) {
+				try {
+					cout << "Please enter the number of the college you want to delete (From 0 to " << (colleges.size() - 1) << ".)." << endl;
+					int toDelete = 0;
+					cin >> toDelete;
+					if (!cin || toDelete >= colleges.size() || toDelete < 0) {
+						if (failCounter == MAX_FAILS)
+							fail("You've exceeded max attempts for correct input.\nQuitting now...");
+						else {
+							failCounter++;
+							chance("Error: Entered invalid input. Please enter a valid input.\n");
+							continue;
+						}
+					}
+					else {
+						reset_state();
+						bool deleting = false;
+						while (true) {
+							cout << "Are you sure you want to delete " << colleges.at(toDelete).get_name() << " from the database (Enter \"Yes\" or \"No\".)." << endl;
+							string checkingDelete;
+							getline(cin, checkingDelete);
+							uppercaseify(checkingDelete);
+							if (checkingDelete == "YES") deleting = true;
+							else if (checkingDelete == "NO") deleting = false;
+							else {
+								if (failCounter == MAX_FAILS)
+									fail("You've exceeded max attempts for correct input.\nQuitting now...");
+								else {
+									failCounter++;
+									chance("Error: Entered invalid input. Please enter a valid input.\n");
+									continue;
+								}
+							}
+							break;
+						}
+						if (deleting == true) {
+							for (auto it = colleges.begin(); it != colleges.end(); it++) {
+								if (it->get_name() == colleges.at(toDelete).get_name()) {
+									cerr << "DEBUG: Size - " << colleges.size() << endl;
+									cout << "Deleting: " << it->get_name() << endl;
+									colleges.erase(it);
+									cerr << "DEBUG: Size - " << colleges.size() << endl;
+									break;
+								}
+							}
+						}
+						else if (deleting == false) continue;
+						else {
+							cout << "Unable to get information from input, going back to the menu." << endl;
+							break;
+						}
+					}
+					if (colleges.size() == 0) {
+						cout << "You have no more colleges to delete. Going back to main menu..." << endl;
+						break;
+					}
+					bool moreDeletions = false;
+					while (true) {
+						cout << "Do you have more colleges to delete (Enter \"YES\" or \"NO\".)?\n";
+						string deletingMore;
+						getline(cin, deletingMore);
+						uppercaseify(deletingMore);
+						if (deletingMore == "YES") moreDeletions = true;
+						else if (deletingMore == "NO") moreDeletions = false;
+						else {
+							if (failCounter == MAX_FAILS)
+								fail("You've exceeded max attempts for correct input.\nQuitting now...");
+							else {
+								failCounter++;
+								chance("Error: Entered invalid input. Please enter a valid input.\n");
+								continue;
+							}
+						}
+						break;
+					}
+					if (moreDeletions == true) continue;
+					else break;
+				}
+				catch (exception &e) {
+					cout << "CAUGHT " << e.what() << endl;
+				}
+			}
+		}
 		else if (choice == QUIT) break;
 	}
 	// PHASE 2: User weighs their options
